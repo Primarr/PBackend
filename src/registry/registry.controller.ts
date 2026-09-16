@@ -8,9 +8,12 @@ import {
   Param,
   Query,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import type { Service } from '../payment/payment.types';
 import { RegistryService } from './registry.service';
+import { PublishServiceDto } from '../payment/payment.dto';
+import { isStellarPublicKey } from '../stellar/stellar';
 
 @Controller('v1/registry')
 export class RegistryController {
@@ -33,27 +36,24 @@ export class RegistryController {
   getService(@Param('id') id: string): Service {
     const service = this.registryService.getService(id);
     if (!service) {
-      throw new BadRequestException('Service not found');
+      throw new NotFoundException('Service not found');
     }
     return service;
   }
 
   @Post()
-  publishService(
-    @Body()
-    data: {
-      name: string;
-      capability: string;
-      payoutAddress: string;
-      pricePerCall: number;
-    },
-  ): Service {
-    if (!data.name || !data.capability || !data.payoutAddress) {
-      throw new BadRequestException('Missing required fields');
+  publishService(@Body() data: PublishServiceDto): Service {
+    if (!isStellarPublicKey(data.payoutAddress)) {
+      throw new BadRequestException(
+        'payoutAddress must be a Stellar G… public key',
+      );
     }
     return this.registryService.publishService({
-      ...data,
-      provider: 'unknown',
+      name: data.name,
+      capability: data.capability,
+      payoutAddress: data.payoutAddress,
+      pricePerCall: data.pricePerCall,
+      provider: data.provider || 'unknown',
       rating: 5.0,
     });
   }
@@ -65,7 +65,7 @@ export class RegistryController {
   ): Service {
     const updated = this.registryService.updateService(id, updates);
     if (!updated) {
-      throw new BadRequestException('Service not found');
+      throw new NotFoundException('Service not found');
     }
     return updated;
   }
@@ -74,7 +74,7 @@ export class RegistryController {
   deleteService(@Param('id') id: string): { message: string } {
     const service = this.registryService.getService(id);
     if (!service) {
-      throw new BadRequestException('Service not found');
+      throw new NotFoundException('Service not found');
     }
     return { message: 'Service deleted' };
   }

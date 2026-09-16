@@ -4,6 +4,7 @@ export interface PaymentRequest {
   asset: string;
   memo?: string;
   serviceId?: string;
+  from?: string;
 }
 
 export interface PaymentReceipt {
@@ -14,6 +15,9 @@ export interface PaymentReceipt {
   to: string;
   amount: number;
   asset: string;
+  fee: number;
+  feeBps: number;
+  status: 'pending_onchain' | 'settled' | 'failed';
 }
 
 export interface Service {
@@ -43,6 +47,7 @@ export interface Transaction {
   status: 'settled' | 'pending' | 'failed';
   timestamp: Date;
   txHash: string;
+  fee?: number;
 }
 
 export interface Webhook {

@@ -1,7 +1,7 @@
 {
   "name": "primer-backend",
-  "version": "0.0.1",
-  "description": "Primer API — agent-to-agent payments on Stellar",
+  "version": "0.2.0",
+  "description": "Primar API — agent-to-agent payments on Stellar",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

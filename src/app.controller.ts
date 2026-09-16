@@ -1,21 +1,37 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { API_VERSION } from './constants';
+import {
+  getNetwork,
+  horizonUrl,
+  pingHorizon,
+} from './stellar/stellar';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  root() {
+    return {
+      service: 'Primar Backend',
+      version: API_VERSION,
+      network: getNetwork(),
+      horizonUrl: horizonUrl(),
+      description: 'Agent-to-agent payment API on Stellar',
+    };
   }
 
   @Get('health')
-  health() {
+  async health() {
+    const horizonOk = await pingHorizon();
     return {
-      status: 'ok',
+      status: horizonOk ? 'ok' : 'degraded',
       timestamp: new Date().toISOString(),
-      version: '0.1.0',
+      version: API_VERSION,
+      network: getNetwork(),
+      horizon_ok: horizonOk,
+      horizon_url: horizonUrl(),
     };
   }
 }
