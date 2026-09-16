@@ -1,8 +1,12 @@
-import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Min, IsIn } from 'class-validator';
 
 export class PaymentDto {
   @IsString()
   to: string;
+
+  @IsOptional()
+  @IsString()
+  from?: string;
 
   @IsNumber()
   @Min(0.000001)
@@ -18,6 +22,10 @@ export class PaymentDto {
   @IsOptional()
   @IsString()
   serviceId?: string;
+
+  @IsOptional()
+  @IsIn(['session', 'task'])
+  paymentType?: 'session' | 'task';
 }
 
 export class BudgetDto {
@@ -36,4 +44,23 @@ export class BudgetDto {
   @IsOptional()
   @IsNumber()
   rateLimit?: number;
+}
+
+export class PublishServiceDto {
+  @IsString()
+  name: string;
+
+  @IsString()
+  capability: string;
+
+  @IsString()
+  payoutAddress: string;
+
+  @IsNumber()
+  @Min(0.000001)
+  pricePerCall: number;
+
+  @IsOptional()
+  @IsString()
+  provider?: string;
 }
